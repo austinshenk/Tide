@@ -2,22 +2,23 @@
 
 #include "tide.h"
 #include "ui_tide.h"
-#include "tidetabwidget.h"
+#include "tabwidget.h"
+#include "filecontroller.h"
 
 Tide::Tide()
 {
     ui->setupUi(this);
 
-    tabs = new TideTabWidget(this);
+    tabs = new TabWidget();
     setCentralWidget(tabs);
+
+    fileController = new FileController();
+    fileController->giveTabWidget(tabs);
+    fileController->giveTide(this);
 
     constructStatusBar();
 
     connectToolBarActions();
-
-    fileDialog = new QFileDialog(this);
-    fileDialog->setNameFilter(tr("*.txt *.lua"));
-    fileDialog->setOption(QFileDialog::DontUseNativeDialog, true);
 }
 
 void Tide::connectToolBarActions() {
@@ -62,17 +63,17 @@ void Tide::setSyntaxtoPlainText() {
 }
 
 void Tide::requestNewFile() {
-    tabs->newFile();
+    fileController->newFile();
 }
 
 void Tide::requestOpenFile() {
-    tabs->loadFile();
+    fileController->loadFile();
 }
 
 void Tide::requestSaveFile() {
-    tabs->saveFile();
+    fileController->saveFile();
 }
 
 void Tide::requestSaveFileas() {
-    tabs->saveAsNewFile();
+    fileController->saveAsNewFile();
 }

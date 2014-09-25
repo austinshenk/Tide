@@ -15,11 +15,13 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         tide.cpp \
-    tidetabwidget.cpp \
-    tidetextedit.cpp
+    filecontroller.cpp \
+    tabwidget.cpp \
+    textedit.cpp
 
 HEADERS  += tide.h \
-    tidetabwidget.h \
-    tidetextedit.h
+    filecontroller.h \
+    tabwidget.h \
+    textedit.h
 
 FORMS    += tide.ui

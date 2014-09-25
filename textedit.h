@@ -1,13 +1,13 @@
-#ifndef TIDETEXTEDIT_H
-#define TIDETEXTEDIT_H
+#ifndef TEXTEDIT_H
+#define TEXTEDIT_H
 
 #include <QTextEdit>
 
-class TideTextEdit : public QTextEdit
+class TextEdit : public QTextEdit
 {
     Q_OBJECT
 public:
-    TideTextEdit();
+    TextEdit();
     const QString &getFileName();
     void setFileName(const QString &name);
     bool isMarked();
@@ -18,4 +18,4 @@ private:
     bool marked;
 };
 
-#endif // TIDETEXTEDIT_H
+#endif // TEXTEDIT_H

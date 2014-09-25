@@ -3,14 +3,16 @@
 
 #include <QMainWindow>
 
+#include "filecontroller.h"
+
 namespace Ui {
 class Tide;
 }
 
 class QAction;
-class TideTabWidget;
+class TabWidget;
+class FileController;
 class QPushButton;
-class QFileDialog;
 
 class Tide : public QMainWindow
 {
@@ -18,7 +20,6 @@ class Tide : public QMainWindow
 
 public:
     Tide();
-    QFileDialog *fileDialog;
     void showMessage(const QString &text);
 
 private slots:
@@ -33,7 +34,8 @@ private:
     void constructStatusBar();
     void constructSyntaxMenu();
     Ui::Tide *ui;
-    TideTabWidget *tabs;
+    TabWidget *tabs;
+    FileController *fileController;
     QPushButton *syntaxChooser;
     QMenu *syntaxMenu;
 };

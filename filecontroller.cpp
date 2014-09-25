@@ -1,0 +1,105 @@
+#include <QFile>
+#include <QMessageBox>
+#include <QApplication>
+#include <QFileInfo>
+#include <QFileDialog>
+#include <QTextStream>
+
+#include "filecontroller.h"
+#include "textedit.h"
+
+FileController::FileController()
+{
+    fileDialog = new QFileDialog;
+    fileDialog->setNameFilter(tr("*.txt *.lua"));
+    fileDialog->setOption(QFileDialog::DontUseNativeDialog, true);
+}
+
+void FileController::giveTabWidget(TabWidget *tabs) {
+    this->tabs = tabs;
+}
+
+void FileController::giveTide(Tide *tide) {
+    this->tide = tide;
+}
+
+void FileController::newFile() {
+    TextEdit *editor = new TextEdit;
+    editor->setFileName(tr(""));
+    tabs->insertTab((tabs->currentIndex() == -1) ? 0 : tabs->currentIndex(), editor, tr(""));
+    connect(editor, SIGNAL(textChanged()), tabs, SLOT(markTab()));
+}
+
+void FileController::loadFile() {
+    connect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(readFile(QString)));
+    fileDialog->setFileMode(QFileDialog::ExistingFile);
+    fileDialog->setAcceptMode(QFileDialog::AcceptOpen);
+    fileDialog->setVisible(true);
+}
+
+void FileController::readFile(const QString &name) {
+    QFile file(name);
+    if (!file.open(QFile::ReadWrite | QFile::Text)) {
+        QMessageBox::warning(tide, tr("WARNING"),
+                             tr("Cannot read file %1:\n%2.")
+                             .arg(name)
+                             .arg(file.errorString()));
+        return;
+    }
+    QTextStream in(&file);
+    TextEdit *editor = new TextEdit;
+    editor->setFileName(name);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    editor->setText(in.readAll());
+    QApplication::restoreOverrideCursor();
+    QFileInfo info(name);
+    tabs->insertTab((tabs->currentIndex() == -1) ? 0 : tabs->currentIndex(), editor, tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));
+    connect(editor, SIGNAL(textChanged()), tabs, SLOT(markTab()));
+    disconnect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(readFile(QString)));
+}
+
+void FileController::saveFile() {
+    if(tabs->currentIndex() != -1) {
+        TextEdit *editor = (TextEdit*) tabs->currentWidget();
+        if(tabs->tabText(tabs->currentIndex()).isEmpty() || tabs->tabText(tabs->currentIndex()) == "*") {
+            saveAsNewFile();
+            return;
+        }
+        if(editor->document()->isModified()) {
+            writeFile(editor->getFileName());
+        }
+    }
+}
+
+void FileController::saveAsNewFile() {
+    if(tabs->currentIndex() != -1) {
+        connect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(writeFile(QString)));
+        fileDialog->setFileMode(QFileDialog::AnyFile);
+        fileDialog->setAcceptMode(QFileDialog::AcceptSave);
+        fileDialog->setVisible(true);
+    }
+}
+
+void FileController::writeFile(const QString &name) {
+    QFile file(name);
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+        QMessageBox::warning(tide, tr("WARNING"),
+                             tr("Cannot write file %1:\n%2.")
+                             .arg(name)
+                             .arg(file.errorString()));
+        return;
+    }
+
+    QTextStream out(&file);
+    TextEdit *editor = (TextEdit*) tabs->currentWidget();
+    editor->setFileName(name);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    if(editor != NULL) {
+        out << editor->toPlainText();
+    }
+    QApplication::restoreOverrideCursor();
+    tide->showMessage(tr("%1 saved").arg(name));
+    tabs->unMarkTab(tabs->currentIndex());
+    disconnect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(writeFile(QString)));
+    return;
+}
