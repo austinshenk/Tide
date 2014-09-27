@@ -26,10 +26,11 @@ private:
     QFileDialog *fileDialog;
     TabWidget *tabs;
     Tide *tide;
+    void readFile(const QString &name);
 
 private slots:
-    void readFile(const QString &fileName);
-    void writeFile(const QString &fileName);
+    void handleLoading(const QString &name);
+    void writeFile(const QString &name);
 };
 
 #endif // FILECONTROLLER_H

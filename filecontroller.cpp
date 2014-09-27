@@ -4,6 +4,7 @@
 #include <QFileInfo>
 #include <QFileDialog>
 #include <QTextStream>
+#include <QDebug>
 
 #include "filecontroller.h"
 #include "textedit.h"
@@ -31,10 +32,19 @@ void FileController::newFile() {
 }
 
 void FileController::loadFile() {
-    connect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(readFile(QString)));
+    connect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(handleLoading(QString)));
     fileDialog->setFileMode(QFileDialog::ExistingFile);
     fileDialog->setAcceptMode(QFileDialog::AcceptOpen);
     fileDialog->setVisible(true);
+}
+
+void FileController::handleLoading(const QString &name) {
+    QFileInfo info(name);
+    if(info.isDir()) {
+        //Load directory
+    } else {
+        readFile(name);
+    }
 }
 
 void FileController::readFile(const QString &name) {
@@ -55,7 +65,7 @@ void FileController::readFile(const QString &name) {
     QFileInfo info(name);
     tabs->insertTab((tabs->currentIndex() == -1) ? 0 : tabs->currentIndex(), editor, tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));
     connect(editor, SIGNAL(textChanged()), tabs, SLOT(markTab()));
-    disconnect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(readFile(QString)));
+    disconnect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(handleLoading(QString)));
 }
 
 void FileController::saveFile() {
@@ -65,7 +75,7 @@ void FileController::saveFile() {
             saveAsNewFile();
             return;
         }
-        if(editor->document()->isModified()) {
+        if(editor->isMarked()) {
             writeFile(editor->getFileName());
         }
     }
@@ -80,7 +90,14 @@ void FileController::saveAsNewFile() {
     }
 }
 
-void FileController::writeFile(const QString &name) {
+void FileController::writeFile(const QString &fileName) {
+    QString name;
+    QFileInfo fileInfo(fileName);
+    if(fileInfo.completeSuffix().isEmpty()) {
+        name = tr("%1.txt").arg(fileName);
+    } else {
+        name = fileName;
+    }
     QFile file(name);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::warning(tide, tr("WARNING"),
@@ -100,6 +117,8 @@ void FileController::writeFile(const QString &name) {
     QApplication::restoreOverrideCursor();
     tide->showMessage(tr("%1 saved").arg(name));
     tabs->unMarkTab(tabs->currentIndex());
+    QFileInfo info(name);
+    tabs->setTabText(tabs->currentIndex(), tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));
     disconnect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(writeFile(QString)));
     return;
 }

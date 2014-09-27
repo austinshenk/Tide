@@ -10,13 +10,14 @@ Tide::Tide()
     ui->setupUi(this);
 
     tabs = new TabWidget();
-    setCentralWidget(tabs);
+    QWidget *centralWidget = findChild<QWidget*>("centralWidget");
+    centralWidget->layout()->addWidget(tabs);
 
     fileController = new FileController();
     fileController->giveTabWidget(tabs);
     fileController->giveTide(this);
 
-    constructStatusBar();
+    //constructStatusBar();
 
     connectToolBarActions();
 }

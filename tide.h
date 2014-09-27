@@ -9,6 +9,7 @@ namespace Ui {
 class Tide;
 }
 
+class QHBoxLayout;
 class QAction;
 class TabWidget;
 class FileController;
