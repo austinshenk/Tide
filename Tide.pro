@@ -17,11 +17,13 @@ SOURCES += main.cpp\
         tide.cpp \
     filecontroller.cpp \
     tabwidget.cpp \
-    textedit.cpp
+    textedit.cpp \
+    projectcontroller.cpp
 
 HEADERS  += tide.h \
     filecontroller.h \
     tabwidget.h \
-    textedit.h
+    textedit.h \
+    projectcontroller.h
 
 FORMS    += tide.ui

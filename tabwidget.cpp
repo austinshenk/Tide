@@ -30,7 +30,7 @@ void TabWidget::markTab() {
 
 void TabWidget::unMarkTab(int index) {
     TextEdit *editor = (TextEdit*) widget(index);
-    if(editor->isMarked()) {
+    if(editor != NULL && editor->isMarked()) {
         editor->setMarked(false);
         QFileInfo info(editor->getFileName());
         setTabText(index, tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));

@@ -60,7 +60,7 @@
     <property name="separatorsCollapsible">
      <bool>false</bool>
     </property>
-    <addaction name="actionNew_Mod"/>
+    <addaction name="menuFileNewMod"/>
     <addaction name="menuFileNew"/>
     <addaction name="menuFileOpen"/>
     <addaction name="menuFileSave"/>
@@ -126,7 +126,7 @@
     <string>Ctrl+Shift+S</string>
    </property>
   </action>
-  <action name="actionNew_Mod">
+  <action name="menuFileNewMod">
    <property name="text">
     <string>New Mod</string>
    </property>

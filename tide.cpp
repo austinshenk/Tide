@@ -4,18 +4,26 @@
 #include "ui_tide.h"
 #include "tabwidget.h"
 #include "filecontroller.h"
+#include "projectcontroller.h"
 
 Tide::Tide()
 {
+    ui = new Ui::Tide();
     ui->setupUi(this);
 
-    tabs = new TabWidget();
     QWidget *centralWidget = findChild<QWidget*>("centralWidget");
-    centralWidget->layout()->addWidget(tabs);
+
+    viewer = new QTreeView(this);
+    centralWidget->layout()->addWidget(viewer);
+    tabs = new TabWidget();
+    centralWidget->layout()->addWidget(tabs);    
 
     fileController = new FileController();
     fileController->giveTabWidget(tabs);
     fileController->giveTide(this);
+
+    projectController = new ProjectController();
+    projectController->giveProjectViewer(viewer);
 
     //constructStatusBar();
 
@@ -23,6 +31,9 @@ Tide::Tide()
 }
 
 void Tide::connectToolBarActions() {
+    QAction *menuFileNewMod = findChild<QAction*>("menuFileNewMod");
+    connect(menuFileNewMod, SIGNAL(triggered()), this, SLOT(requestNewProject()));
+
     QAction *menuFileNew = findChild<QAction*>("menuFileNew");
     connect(menuFileNew, SIGNAL(triggered()), this, SLOT(requestNewFile()));
 
@@ -61,6 +72,10 @@ void Tide::constructSyntaxMenu() {
 
 void Tide::setSyntaxtoPlainText() {
 
+}
+
+void Tide::requestNewProject() {
+    projectController->newProject();
 }
 
 void Tide::requestNewFile() {

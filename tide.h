@@ -3,16 +3,16 @@
 
 #include <QMainWindow>
 
-#include "filecontroller.h"
-
 namespace Ui {
 class Tide;
 }
 
 class QHBoxLayout;
 class QAction;
+class QTreeView;
 class TabWidget;
 class FileController;
+class ProjectController;
 class QPushButton;
 
 class Tide : public QMainWindow
@@ -24,6 +24,7 @@ public:
     void showMessage(const QString &text);
 
 private slots:
+    void requestNewProject();
     void requestNewFile();
     void requestOpenFile();
     void requestSaveFile();
@@ -35,8 +36,10 @@ private:
     void constructStatusBar();
     void constructSyntaxMenu();
     Ui::Tide *ui;
+    QTreeView *viewer;
     TabWidget *tabs;
     FileController *fileController;
+    ProjectController *projectController;
     QPushButton *syntaxChooser;
     QMenu *syntaxMenu;
 };

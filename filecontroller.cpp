@@ -12,7 +12,7 @@
 FileController::FileController()
 {
     fileDialog = new QFileDialog;
-    fileDialog->setNameFilter(tr("*.txt *.lua"));
+    fileDialog->setNameFilter(tr("Modding files (*.txt *.lua)"));
     fileDialog->setOption(QFileDialog::DontUseNativeDialog, true);
 }
 
