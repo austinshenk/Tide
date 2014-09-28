@@ -4,8 +4,9 @@
 #include "tabwidget.h"
 #include "textedit.h"
 
-TabWidget::TabWidget()
+TabWidget::TabWidget(QWidget *parent)
 {
+    setParent(parent);
     setMovable(true);
     setTabsClosable(true);
     setTabShape(QTabWidget::Rounded);

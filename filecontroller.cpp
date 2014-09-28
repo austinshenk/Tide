@@ -26,6 +26,20 @@ void FileController::giveTide(Tide *tide) {
     this->tide = tide;
 }
 
+void FileController::setDirectory(const QString &dir) {
+    this->dir = dir;
+    fileDialog->setDirectory(dir);
+}
+
+QString FileController::getDirectory() {
+    return dir;
+}
+
+QString FileController::getShortName(const QString &name, int length) {
+    QString shortName = name.right(length);
+    return tr("%1%2").arg((shortName.length() == name.length())? "" : "...").arg(shortName);
+}
+
 void FileController::newFile() {
     TextEdit *editor = new TextEdit;
     editor->setFileName(tr(""));
@@ -118,7 +132,7 @@ void FileController::writeFile(const QString &name) {
         out << editor->toPlainText();
     }
     QApplication::restoreOverrideCursor();
-    tide->showMessage(tr("%1 saved").arg(name));
+    tide->showMessage(tr("Saved %1").arg(getShortName(name, 20)));
     tabs->unMarkTab(tabs->currentIndex());
     QFileInfo info(name);
     tabs->setTabText(tabs->currentIndex(), tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));

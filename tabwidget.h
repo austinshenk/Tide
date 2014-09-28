@@ -10,7 +10,7 @@ class TabWidget : public QTabWidget
     Q_OBJECT
 
 public:
-    TabWidget();
+    TabWidget(QWidget *parent = 0);
     void unMarkTab(int index);
 
 public slots:

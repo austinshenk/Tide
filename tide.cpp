@@ -18,7 +18,7 @@ Tide::Tide()
     viewer = new QTreeView(this);
     viewer->hide();
     centralWidget->layout()->addWidget(viewer);
-    tabs = new TabWidget();
+    tabs = new TabWidget(this);
     centralWidget->layout()->addWidget(tabs);    
 
     fileController = new FileController();
@@ -27,12 +27,18 @@ Tide::Tide()
 
     projectController = new ProjectController();
     projectController->giveProjectViewer(viewer);
+    projectController->giveTide(this);
 
     //constructStatusBar();
 
     connectToolBarActions();
 
     readSettings();
+}
+
+Tide::~Tide() {
+    delete fileController;
+    delete projectController;
 }
 
 void Tide::connectToolBarActions() {
@@ -93,6 +99,8 @@ void Tide::readSettings() {
         fileController->loadFile(settings.value(Settings::FilesName).toString(), i);
     }
     settings.endArray();
+    projectController->setDirectory(settings.value(Settings::Project).toString());
+    fileController->setDirectory(settings.value(Settings::Project).toString());
 }
 
 void Tide::writeSettings() {
@@ -106,6 +114,8 @@ void Tide::writeSettings() {
         settings.setValue(Settings::FilesName, editor->getFileName());
     }
     settings.endArray();
+    qDebug() << projectController->getDirectory();
+    settings.setValue(Settings::Project, projectController->getDirectory());
 }
 
 void Tide::closeEvent(QCloseEvent *event)

@@ -21,6 +21,7 @@ class Tide : public QMainWindow
 
 public:
     Tide();
+    ~Tide();
     void showMessage(const QString &text);
 
 private slots:
