@@ -4,6 +4,7 @@
 #include <QObject>
 
 class QTreeView;
+class QFileDialog;
 
 class ProjectController : public QObject
 {
@@ -15,6 +16,10 @@ public:
 
 private:
     QTreeView *viewer;
+    QFileDialog *fileDialog;
+
+private slots:
+    void createProject(const QString &name);
 };
 
 #endif // PROJECTCONTROLLER_H

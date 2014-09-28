@@ -13,7 +13,9 @@ FileController::FileController()
 {
     fileDialog = new QFileDialog;
     fileDialog->setNameFilter(tr("Modding files (*.txt *.lua)"));
-    fileDialog->setOption(QFileDialog::DontUseNativeDialog, true);
+    fileDialog->setOption(QFileDialog::DontUseNativeDialog, false);
+    fileDialog->setWindowModality(Qt::ApplicationModal);
+    fileDialog->setDefaultSuffix(tr("lua"));
 }
 
 void FileController::giveTabWidget(TabWidget *tabs) {
@@ -90,14 +92,7 @@ void FileController::saveAsNewFile() {
     }
 }
 
-void FileController::writeFile(const QString &fileName) {
-    QString name;
-    QFileInfo fileInfo(fileName);
-    if(fileInfo.completeSuffix().isEmpty()) {
-        name = tr("%1.txt").arg(fileName);
-    } else {
-        name = fileName;
-    }
+void FileController::writeFile(const QString &name) {
     QFile file(name);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::warning(tide, tr("WARNING"),

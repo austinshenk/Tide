@@ -14,6 +14,7 @@ Tide::Tide()
     QWidget *centralWidget = findChild<QWidget*>("centralWidget");
 
     viewer = new QTreeView(this);
+    viewer->hide();
     centralWidget->layout()->addWidget(viewer);
     tabs = new TabWidget();
     centralWidget->layout()->addWidget(tabs);    
