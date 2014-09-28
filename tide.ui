@@ -66,13 +66,7 @@
     <addaction name="menuFileSave"/>
     <addaction name="menuFileSaveas"/>
    </widget>
-   <widget class="QMenu" name="menuEdit">
-    <property name="title">
-     <string>Edit</string>
-    </property>
-   </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuEdit"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="styleSheet">
