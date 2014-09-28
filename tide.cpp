@@ -82,10 +82,11 @@ void Tide::setSyntaxtoPlainText() {
 void Tide::readSettings() {
     QCoreApplication::setOrganizationName("Shenk");
     QCoreApplication::setApplicationName("Tide");
+    QSettings::setDefaultFormat(QSettings::IniFormat);
 
     QSettings settings;
     move(settings.value(Settings::MainPos).toPoint());
-    resize(settings.value(Settings::MainSize).toSize());
+    resize(settings.value(Settings::MainSize, QSize(400, 400)).toSize());
     int size = settings.beginReadArray(Settings::Files);
     for(int i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
@@ -102,7 +103,6 @@ void Tide::writeSettings() {
     for(int i = 0; i < tabs->count(); ++i) {
         settings.setArrayIndex(i);
         TextEdit *editor = (TextEdit*)tabs->widget(i);
-        qDebug() << editor->getFileName();
         settings.setValue(Settings::FilesName, editor->getFileName());
     }
     settings.endArray();
