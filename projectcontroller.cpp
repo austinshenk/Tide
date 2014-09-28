@@ -5,8 +5,9 @@
 ProjectController::ProjectController()
 {
     fileDialog = new QFileDialog();
-    fileDialog->setOption(QFileDialog::ShowDirsOnly, true);
     fileDialog->setFileMode(QFileDialog::Directory);
+    fileDialog->setOption(QFileDialog::ShowDirsOnly, true);
+    fileDialog->setOption(QFileDialog::DontUseNativeDialog, false);
     fileDialog->setWindowModality(Qt::ApplicationModal);
 }
 

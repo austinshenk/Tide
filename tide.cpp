@@ -3,8 +3,10 @@
 #include "tide.h"
 #include "ui_tide.h"
 #include "tabwidget.h"
+#include "textedit.h"
 #include "filecontroller.h"
 #include "projectcontroller.h"
+#include "settingscontroller.h"
 
 Tide::Tide()
 {
@@ -29,6 +31,8 @@ Tide::Tide()
     //constructStatusBar();
 
     connectToolBarActions();
+
+    readSettings();
 }
 
 void Tide::connectToolBarActions() {
@@ -74,6 +78,41 @@ void Tide::constructSyntaxMenu() {
 void Tide::setSyntaxtoPlainText() {
 
 }
+
+void Tide::readSettings() {
+    QCoreApplication::setOrganizationName("Shenk");
+    QCoreApplication::setApplicationName("Tide");
+
+    QSettings settings;
+    move(settings.value(Settings::MainPos).toPoint());
+    resize(settings.value(Settings::MainSize).toSize());
+    int size = settings.beginReadArray(Settings::Files);
+    for(int i = 0; i < size; ++i) {
+        settings.setArrayIndex(i);
+        fileController->loadFile(settings.value(Settings::FilesName).toString(), i);
+    }
+    settings.endArray();
+}
+
+void Tide::writeSettings() {
+    QSettings settings;
+    settings.setValue(Settings::MainPos, pos());
+    settings.setValue(Settings::MainSize, size());
+    settings.beginWriteArray(Settings::Files);
+    for(int i = 0; i < tabs->count(); ++i) {
+        settings.setArrayIndex(i);
+        TextEdit *editor = (TextEdit*)tabs->widget(i);
+        qDebug() << editor->getFileName();
+        settings.setValue(Settings::FilesName, editor->getFileName());
+    }
+    settings.endArray();
+}
+
+void Tide::closeEvent(QCloseEvent *event)
+ {
+    writeSettings();
+    event->accept();
+ }
 
 void Tide::requestNewProject() {
     projectController->newProject();

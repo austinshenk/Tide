@@ -35,6 +35,9 @@ private:
     void connectToolBarActions();
     void constructStatusBar();
     void constructSyntaxMenu();
+    void readSettings();
+    void writeSettings();
+    void closeEvent(QCloseEvent *event);
     Ui::Tide *ui;
     QTreeView *viewer;
     TabWidget *tabs;

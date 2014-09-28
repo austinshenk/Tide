@@ -40,6 +40,10 @@ void FileController::loadFile() {
     fileDialog->setVisible(true);
 }
 
+void FileController::loadFile(const QString &name, int pos) {
+    readFile(name, pos);
+}
+
 void FileController::handleLoading(const QString &name) {
     QFileInfo info(name);
     if(info.isDir()) {
@@ -49,7 +53,7 @@ void FileController::handleLoading(const QString &name) {
     }
 }
 
-void FileController::readFile(const QString &name) {
+void FileController::readFile(const QString &name, int insertAt) {
     QFile file(name);
     if (!file.open(QFile::ReadWrite | QFile::Text)) {
         QMessageBox::warning(tide, tr("WARNING"),
@@ -65,7 +69,11 @@ void FileController::readFile(const QString &name) {
     editor->setText(in.readAll());
     QApplication::restoreOverrideCursor();
     QFileInfo info(name);
-    tabs->insertTab((tabs->currentIndex() == -1) ? 0 : tabs->currentIndex(), editor, tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));
+    if(insertAt == -1) {
+        tabs->insertTab((tabs->currentIndex() == -1) ? 0 : tabs->currentIndex(), editor, tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));
+    } else {
+        tabs->insertTab(insertAt, editor, tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));
+    }
     connect(editor, SIGNAL(textChanged()), tabs, SLOT(markTab()));
     disconnect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(handleLoading(QString)));
 }

@@ -19,6 +19,7 @@ public:
     void giveTide(Tide *tide);
     void newFile();
     void loadFile();
+    void loadFile(const QString &name, int pos);
     void saveFile();
     void saveAsNewFile();
 
@@ -26,7 +27,7 @@ private:
     QFileDialog *fileDialog;
     TabWidget *tabs;
     Tide *tide;
-    void readFile(const QString &name);
+    void readFile(const QString &name, int insertAt = -1);
 
 private slots:
     void handleLoading(const QString &name);
