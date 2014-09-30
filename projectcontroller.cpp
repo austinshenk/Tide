@@ -1,11 +1,11 @@
 #include <QFileDialog>
+#include <QModelIndex>
 #include <QMessageBox>
 #include <QTreeView>
 #include <QFileSystemModel>
 #include <QDebug>
 
 #include "projectcontroller.h"
-#include "filecontroller.h"
 
 ProjectController::ProjectController()
 {
@@ -19,27 +19,32 @@ ProjectController::ProjectController()
 
 void ProjectController::giveTide(Tide *tide) {
     this->tide = tide;
+    tide->viewer->setRootIsDecorated(false);
+    tide->viewer->setUniformRowHeights(true);
+    tide->viewer->setHeaderHidden(true);
+    tide->viewer->setMaximumWidth(200);
+    connect(tide->viewer, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openFile(QModelIndex)));
 }
 
-void ProjectController::giveProjectViewer(QTreeView *viewer) {
-    this->viewer = viewer;
-    this->viewer->setRootIsDecorated(false);
-    this->viewer->setUniformRowHeights(true);
-    this->viewer->setHeaderHidden(true);
-}
-
-void ProjectController::giveFileController(FileController *controller) {
-    this->fileController = controller;
+void ProjectController::openFile(QModelIndex *index) {
+    qDebug() << index->data().toString();
 }
 
 void ProjectController::setDirectory(const QString &dir) {
     this->dir = dir;
     fileDialog->setDirectory(dir);
     QFileSystemModel *model = new QFileSystemModel;
+    model->setNameFilterDisables(false);
+    QStringList filters;
+    filters << "*.txt" << "*.lua";
+    model->setNameFilters(filters);
     model->setRootPath(dir);
-    viewer->setModel(model);
-    viewer->setRootIndex(model->index(dir));
-    viewer->show();
+    tide->viewer->setModel(model);
+    tide->viewer->setRootIndex(model->index(dir));
+    tide->viewer->hideColumn(1);
+    tide->viewer->hideColumn(2);
+    tide->viewer->hideColumn(3);
+    tide->viewer->show();
 }
 
 const QString &ProjectController::getDirectory() {
@@ -47,6 +52,7 @@ const QString &ProjectController::getDirectory() {
 }
 
 void ProjectController::newProject() {
+    disconnect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(createProject(QString)));
     connect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(createProject(QString)));
     fileDialog->setAcceptMode(QFileDialog::AcceptSave);
     fileDialog->setVisible(true);
@@ -60,7 +66,7 @@ void ProjectController::createProject(const QString &name) {
     }
     QDir dir(name);
     if(dir.mkpath(dir.absolutePath())) {
-        tide->showMessage(tr("Created project %1").arg(dir.dirName()));
+        tide->showMessage(tr("Created project \"%1\"").arg(dir.dirName()));
 
         //Set viewer to new Directory
         setDirectory(dir.absolutePath());

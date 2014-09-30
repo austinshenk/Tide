@@ -5,8 +5,7 @@
 #include "tide.h"
 
 class Tide;
-class FileController;
-class QTreeView;
+class QModelIndex;
 class QFileDialog;
 
 class ProjectController : public QObject
@@ -15,21 +14,18 @@ class ProjectController : public QObject
 public:
     ProjectController();
     void giveTide(Tide *tide);
-    void giveProjectViewer(QTreeView *viewer);
-    void giveFileController(FileController *controller);
     void newProject();
     void setDirectory(const QString &dir);
     const QString &getDirectory();
 
 private:
     Tide *tide;
-    QTreeView *viewer;
     QFileDialog *fileDialog;
-    FileController *fileController;
     QString dir;
 
 private slots:
     void createProject(const QString &name);
+    void openFile(QModelIndex *index);
 };
 
 #endif // PROJECTCONTROLLER_H

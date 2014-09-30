@@ -1,8 +1,11 @@
 #include <QTabBar>
 #include <QFileInfo>
+#include <QMessageBox>
 
 #include "tabwidget.h"
 #include "textedit.h"
+#include "tide.h"
+#include "filecontroller.h"
 
 TabWidget::TabWidget(QWidget *parent)
 {
@@ -17,8 +20,25 @@ TabWidget::TabWidget(QWidget *parent)
     connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(requestTabtoClose(int)));
 }
 
+void TabWidget::giveTide(Tide *tide) {
+    this->tide = tide;
+}
+
 void TabWidget::requestTabtoClose(int index) {
-    removeTab(index);
+    TextEdit *editor = (TextEdit*)widget(index);
+    if(editor->isMarked()) {
+        QMessageBox::StandardButton reply = QMessageBox::warning(this, "Tide", "This document has been modified.\nDo you want to save your changes?",
+                             QMessageBox::Save|QMessageBox::Discard|QMessageBox::Cancel);
+        if(reply == QMessageBox::Save) {
+            tide->fileController->saveFile(editor->getFileName(), index);
+        } else if (reply == QMessageBox::Discard) {
+            removeTab(index);
+        } else {
+            return;
+        }
+    } else {
+        removeTab(index);
+    }
 }
 
 void TabWidget::markTab() {

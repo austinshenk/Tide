@@ -18,10 +18,6 @@ FileController::FileController()
     fileDialog->setDefaultSuffix(tr("lua"));
 }
 
-void FileController::giveTabWidget(TabWidget *tabs) {
-    this->tabs = tabs;
-}
-
 void FileController::giveTide(Tide *tide) {
     this->tide = tide;
 }
@@ -43,8 +39,8 @@ QString FileController::getShortName(const QString &name, int length) {
 void FileController::newFile() {
     TextEdit *editor = new TextEdit;
     editor->setFileName(tr(""));
-    tabs->insertTab((tabs->currentIndex() == -1) ? 0 : tabs->currentIndex(), editor, tr(""));
-    connect(editor, SIGNAL(textChanged()), tabs, SLOT(markTab()));
+    tide->tabs->insertTab((tide->tabs->currentIndex() == -1) ? 0 : tide->tabs->currentIndex(), editor, tr(""));
+    connect(editor, SIGNAL(textChanged()), tide->tabs, SLOT(markTab()));
 }
 
 void FileController::loadFile() {
@@ -84,18 +80,18 @@ void FileController::readFile(const QString &name, int insertAt) {
     QApplication::restoreOverrideCursor();
     QFileInfo info(name);
     if(insertAt == -1) {
-        tabs->insertTab((tabs->currentIndex() == -1) ? 0 : tabs->currentIndex(), editor, tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));
+        tide->tabs->insertTab((tide->tabs->currentIndex() == -1) ? 0 : tide->tabs->currentIndex(), editor, tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));
     } else {
-        tabs->insertTab(insertAt, editor, tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));
+        tide->tabs->insertTab(insertAt, editor, tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));
     }
-    connect(editor, SIGNAL(textChanged()), tabs, SLOT(markTab()));
+    connect(editor, SIGNAL(textChanged()), tide->tabs, SLOT(markTab()));
     disconnect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(handleLoading(QString)));
 }
 
 void FileController::saveFile() {
-    if(tabs->currentIndex() != -1) {
-        TextEdit *editor = (TextEdit*) tabs->currentWidget();
-        if(tabs->tabText(tabs->currentIndex()).isEmpty() || tabs->tabText(tabs->currentIndex()) == "*") {
+    if(tide->tabs->currentIndex() != -1) {
+        TextEdit *editor = (TextEdit*) tide->tabs->currentWidget();
+        if(tide->tabs->tabText(tide->tabs->currentIndex()).isEmpty() || tide->tabs->tabText(tide->tabs->currentIndex()) == "*") {
             saveAsNewFile();
             return;
         }
@@ -105,8 +101,28 @@ void FileController::saveFile() {
     }
 }
 
+void FileController::saveFile(const QString &name, int pos) {
+    QFile file(name);
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+        QMessageBox::warning(tide, tr("WARNING"),
+                             tr("Cannot write file %1:\n%2.")
+                             .arg(name)
+                             .arg(file.errorString()));
+        return;
+    }
+    QTextStream out(&file);
+    TextEdit *editor = (TextEdit*) tide->tabs->widget(pos);
+    editor->setFileName(name);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    if(editor != NULL) {
+        out << editor->toPlainText();
+    }
+    QApplication::restoreOverrideCursor();
+    tide->showMessage(tr("Saved %1").arg(getShortName(name, 20)));
+}
+
 void FileController::saveAsNewFile() {
-    if(tabs->currentIndex() != -1) {
+    if(tide->tabs->currentIndex() != -1) {
         connect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(writeFile(QString)));
         fileDialog->setFileMode(QFileDialog::AnyFile);
         fileDialog->setAcceptMode(QFileDialog::AcceptSave);
@@ -125,7 +141,7 @@ void FileController::writeFile(const QString &name) {
     }
 
     QTextStream out(&file);
-    TextEdit *editor = (TextEdit*) tabs->currentWidget();
+    TextEdit *editor = (TextEdit*) tide->tabs->currentWidget();
     editor->setFileName(name);
     QApplication::setOverrideCursor(Qt::WaitCursor);
     if(editor != NULL) {
@@ -133,9 +149,9 @@ void FileController::writeFile(const QString &name) {
     }
     QApplication::restoreOverrideCursor();
     tide->showMessage(tr("Saved %1").arg(getShortName(name, 20)));
-    tabs->unMarkTab(tabs->currentIndex());
+    tide->tabs->unMarkTab(tide->tabs->currentIndex());
     QFileInfo info(name);
-    tabs->setTabText(tabs->currentIndex(), tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));
+    tide->tabs->setTabText(tide->tabs->currentIndex(), tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));
     disconnect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(writeFile(QString)));
     return;
 }

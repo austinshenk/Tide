@@ -23,6 +23,10 @@ public:
     Tide();
     ~Tide();
     void showMessage(const QString &text);
+    QTreeView *viewer;
+    TabWidget *tabs;
+    FileController *fileController;
+    ProjectController *projectController;
 
 private slots:
     void requestNewProject();
@@ -40,10 +44,6 @@ private:
     void writeSettings();
     void closeEvent(QCloseEvent *event);
     Ui::Tide *ui;
-    QTreeView *viewer;
-    TabWidget *tabs;
-    FileController *fileController;
-    ProjectController *projectController;
     QPushButton *syntaxChooser;
     QMenu *syntaxMenu;
 };

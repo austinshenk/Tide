@@ -22,11 +22,9 @@ Tide::Tide()
     centralWidget->layout()->addWidget(tabs);    
 
     fileController = new FileController();
-    fileController->giveTabWidget(tabs);
     fileController->giveTide(this);
 
     projectController = new ProjectController();
-    projectController->giveProjectViewer(viewer);
     projectController->giveTide(this);
 
     //constructStatusBar();
@@ -96,7 +94,9 @@ void Tide::readSettings() {
     int size = settings.beginReadArray(Settings::Files);
     for(int i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
-        fileController->loadFile(settings.value(Settings::FilesName).toString(), i);
+        if(!settings.value(Settings::FilesName).toString().isEmpty()) {
+            fileController->loadFile(settings.value(Settings::FilesName).toString(), i);
+        }
     }
     settings.endArray();
     projectController->setDirectory(settings.value(Settings::Project).toString());
@@ -111,10 +111,11 @@ void Tide::writeSettings() {
     for(int i = 0; i < tabs->count(); ++i) {
         settings.setArrayIndex(i);
         TextEdit *editor = (TextEdit*)tabs->widget(i);
-        settings.setValue(Settings::FilesName, editor->getFileName());
+        if(!editor->getFileName().isEmpty()) {
+            settings.setValue(Settings::FilesName, editor->getFileName());
+        }
     }
     settings.endArray();
-    qDebug() << projectController->getDirectory();
     settings.setValue(Settings::Project, projectController->getDirectory());
 }
 

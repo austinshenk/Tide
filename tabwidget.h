@@ -11,7 +11,11 @@ class TabWidget : public QTabWidget
 
 public:
     TabWidget(QWidget *parent = 0);
+    void giveTide(Tide *tide);
     void unMarkTab(int index);
+
+private:
+    Tide *tide;
 
 public slots:
     void markTab();
