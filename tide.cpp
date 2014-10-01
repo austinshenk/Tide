@@ -46,6 +46,9 @@ void Tide::connectToolBarActions() {
     QAction *menuFileNew = findChild<QAction*>("menuFileNew");
     connect(menuFileNew, SIGNAL(triggered()), this, SLOT(requestNewFile()));
 
+    QAction *menuFileOpenMod = findChild<QAction*>("menuFileOpenMod");
+    connect(menuFileOpenMod, SIGNAL(triggered()), this, SLOT(requestOpenProject()));
+
     QAction *menuFileOpen = findChild<QAction*>("menuFileOpen");
     connect(menuFileOpen, SIGNAL(triggered()), this, SLOT(requestOpenFile()));
 
@@ -119,11 +122,14 @@ void Tide::writeSettings() {
     settings.setValue(Settings::Project, projectController->getDirectory());
 }
 
-void Tide::closeEvent(QCloseEvent *event)
- {
+void Tide::closeEvent(QCloseEvent *event) {
+    if(!fileController->checkMarks()) {
+        event->ignore();
+        return;
+    }
     writeSettings();
     event->accept();
- }
+}
 
 void Tide::requestNewProject() {
     projectController->newProject();
@@ -131,6 +137,10 @@ void Tide::requestNewProject() {
 
 void Tide::requestNewFile() {
     fileController->newFile();
+}
+
+void Tide::requestOpenProject() {
+    projectController->openProject();
 }
 
 void Tide::requestOpenFile() {

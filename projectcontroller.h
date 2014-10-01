@@ -15,6 +15,7 @@ public:
     ProjectController();
     void giveTide(Tide *tide);
     void newProject();
+    void openProject();
     void setDirectory(const QString &dir);
     const QString &getDirectory();
 
@@ -23,9 +24,12 @@ private:
     QFileDialog *fileDialog;
     QString dir;
 
+public slots:
+    void openFile(const QModelIndex &index);
+
 private slots:
     void createProject(const QString &name);
-    void openFile(QModelIndex *index);
+    void loadProject(const QString &loc);
 };
 
 #endif // PROJECTCONTROLLER_H

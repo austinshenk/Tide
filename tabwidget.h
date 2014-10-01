@@ -13,6 +13,7 @@ public:
     TabWidget(QWidget *parent = 0);
     void giveTide(Tide *tide);
     void unMarkTab(int index);
+    void closeAllTabs();
 
 private:
     Tide *tide;

@@ -43,7 +43,18 @@ void FileController::newFile() {
     connect(editor, SIGNAL(textChanged()), tide->tabs, SLOT(markTab()));
 }
 
+int FileController::fileTabExists(const QString &name) {
+    for(int i=0; i<tide->tabs->count(); i++) {
+        TextEdit *editor = (TextEdit *)tide->tabs->widget(i);
+        if(editor->getFileName() == name) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void FileController::loadFile() {
+    disconnect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(handleLoading(QString)));
     connect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(handleLoading(QString)));
     fileDialog->setFileMode(QFileDialog::ExistingFile);
     fileDialog->setAcceptMode(QFileDialog::AcceptOpen);
@@ -51,10 +62,20 @@ void FileController::loadFile() {
 }
 
 void FileController::loadFile(const QString &name, int pos) {
-    readFile(name, pos);
+    int exists = fileTabExists(name);
+    if(exists == -1) {
+        readFile(name, pos);
+    } else {
+        tide->tabs->setCurrentIndex(exists);
+    }
 }
 
 void FileController::handleLoading(const QString &name) {
+    int exists = fileTabExists(name);
+    if(exists != -1) {
+        tide->tabs->setCurrentIndex(exists);
+        return;
+    }
     QFileInfo info(name);
     if(info.isDir()) {
         //Load directory
@@ -85,7 +106,6 @@ void FileController::readFile(const QString &name, int insertAt) {
         tide->tabs->insertTab(insertAt, editor, tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));
     }
     connect(editor, SIGNAL(textChanged()), tide->tabs, SLOT(markTab()));
-    disconnect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(handleLoading(QString)));
 }
 
 void FileController::saveFile() {
@@ -113,16 +133,19 @@ void FileController::saveFile(const QString &name, int pos) {
     QTextStream out(&file);
     TextEdit *editor = (TextEdit*) tide->tabs->widget(pos);
     editor->setFileName(name);
+    editor->setMarked(false);
     QApplication::setOverrideCursor(Qt::WaitCursor);
     if(editor != NULL) {
         out << editor->toPlainText();
     }
     QApplication::restoreOverrideCursor();
+    tide->tabs->unMarkTab(pos);
     tide->showMessage(tr("Saved %1").arg(getShortName(name, 20)));
 }
 
 void FileController::saveAsNewFile() {
     if(tide->tabs->currentIndex() != -1) {
+        disconnect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(writeFile(QString)));
         connect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(writeFile(QString)));
         fileDialog->setFileMode(QFileDialog::AnyFile);
         fileDialog->setAcceptMode(QFileDialog::AcceptSave);
@@ -150,8 +173,50 @@ void FileController::writeFile(const QString &name) {
     QApplication::restoreOverrideCursor();
     tide->showMessage(tr("Saved %1").arg(getShortName(name, 20)));
     tide->tabs->unMarkTab(tide->tabs->currentIndex());
-    QFileInfo info(name);
-    tide->tabs->setTabText(tide->tabs->currentIndex(), tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));
-    disconnect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(writeFile(QString)));
     return;
+}
+
+bool FileController::checkMarks() {
+    bool hasUnsavedNewDocument = false;
+    for(int i=0; i<tide->tabs->count(); i++) {
+        TextEdit *editor = (TextEdit *)tide->tabs->widget(i);
+        if(editor->isMarked() && editor->getFileName().isEmpty()) {
+            hasUnsavedNewDocument = true;
+            break;
+        }
+    }
+    if(hasUnsavedNewDocument) {
+        QMessageBox::StandardButton reply = QMessageBox::warning(tide, tr("Tide"), tr("A new document has unsaved changes.\nPlease save the changes, otherwise discard."),
+                             QMessageBox::Ok|QMessageBox::Discard|QMessageBox::Cancel);
+        if(reply == QMessageBox::Ok || reply == QMessageBox::Cancel) {
+            return false;
+        } else if(reply == QMessageBox::Discard) {
+            //Do Nothing
+        }
+    }
+    bool hasUnsavedChanges = false;
+    for(int i=0; i<tide->tabs->count(); i++) {
+        TextEdit *editor = (TextEdit *)tide->tabs->widget(i);
+        if(editor->isMarked() && !editor->getFileName().isEmpty()) {
+            hasUnsavedChanges = true;
+            break;
+        }
+    }
+    if(hasUnsavedChanges) {
+        QMessageBox::StandardButton reply = QMessageBox::warning(tide, tr("Tide"), tr("Multiple documents have unsaved changes.\nWould you like to save those changes?"),
+                             QMessageBox::SaveAll|QMessageBox::Discard|QMessageBox::Cancel);
+        if(reply == QMessageBox::SaveAll) {
+            for(int i=0; i<tide->tabs->count(); i++) {
+                TextEdit *editor = (TextEdit *)tide->tabs->widget(i);
+                if(editor->isMarked() && !editor->getFileName().isEmpty()) {
+                    saveFile(editor->getFileName(), i);
+                }
+            }
+        } else if(reply == QMessageBox::Discard) {
+            //Do Nothing
+        } else if(reply == QMessageBox::Cancel) {
+            return false;
+        }
+    }
+    return true;
 }

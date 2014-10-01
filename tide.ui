@@ -62,6 +62,7 @@
     </property>
     <addaction name="menuFileNewMod"/>
     <addaction name="menuFileNew"/>
+    <addaction name="menuFileOpenMod"/>
     <addaction name="menuFileOpen"/>
     <addaction name="menuFileSave"/>
     <addaction name="menuFileSaveas"/>
@@ -95,7 +96,7 @@
     <string>Open</string>
    </property>
    <property name="toolTip">
-    <string>Open file or mod</string>
+    <string>Open file</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -132,6 +133,14 @@
    </property>
    <property name="toolTip">
     <string>Create new mod</string>
+   </property>
+  </action>
+  <action name="menuFileOpenMod">
+   <property name="text">
+    <string>Open Mod</string>
+   </property>
+   <property name="toolTip">
+    <string>Open mod</string>
    </property>
   </action>
  </widget>

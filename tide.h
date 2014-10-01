@@ -31,6 +31,7 @@ public:
 private slots:
     void requestNewProject();
     void requestNewFile();
+    void requestOpenProject();
     void requestOpenFile();
     void requestSaveFile();
     void requestSaveFileas();

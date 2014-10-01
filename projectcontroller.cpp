@@ -6,6 +6,7 @@
 #include <QDebug>
 
 #include "projectcontroller.h"
+#include "filecontroller.h"
 
 ProjectController::ProjectController()
 {
@@ -23,11 +24,11 @@ void ProjectController::giveTide(Tide *tide) {
     tide->viewer->setUniformRowHeights(true);
     tide->viewer->setHeaderHidden(true);
     tide->viewer->setMaximumWidth(200);
-    connect(tide->viewer, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openFile(QModelIndex)));
+    connect(tide->viewer, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openFile(const QModelIndex &)));
 }
 
-void ProjectController::openFile(QModelIndex *index) {
-    qDebug() << index->data().toString();
+void ProjectController::openFile(const QModelIndex &index) {
+    tide->fileController->loadFile(tr("%1/%2").arg(dir).arg(index.data().toString()), -1);
 }
 
 void ProjectController::setDirectory(const QString &dir) {
@@ -56,6 +57,21 @@ void ProjectController::newProject() {
     connect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(createProject(QString)));
     fileDialog->setAcceptMode(QFileDialog::AcceptSave);
     fileDialog->setVisible(true);
+}
+
+void ProjectController::openProject() {
+    if(!tide->fileController->checkMarks()) {
+        return;
+    }
+    disconnect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(loadProject(QString)));
+    connect(fileDialog, SIGNAL(fileSelected(QString)), this, SLOT(loadProject(QString)));
+    fileDialog->setAcceptMode(QFileDialog::AcceptOpen);
+    fileDialog->setVisible(true);
+}
+
+void ProjectController::loadProject(const QString &loc) {
+    tide->tabs->closeAllTabs();
+    setDirectory(loc);
 }
 
 void ProjectController::createProject(const QString &name) {

@@ -18,11 +18,14 @@ public:
     void setDirectory(const QString &dir);
     QString getDirectory();
     void newFile();
+    int fileTabExists(const QString &name);
     void loadFile();
     void loadFile(const QString &name, int pos);
     void saveFile();
     void saveFile(const QString &name, int pos);
     void saveAsNewFile();
+    void saveAsNewFile(int pos);
+    bool checkMarks();
     static QString getShortName(const QString &name, int length);
 
 private:

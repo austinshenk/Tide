@@ -57,3 +57,10 @@ void TabWidget::unMarkTab(int index) {
         setTabText(index, tr("%1.%2").arg(info.baseName()).arg(info.completeSuffix()));
     }
 }
+
+void TabWidget::closeAllTabs() {
+    int c = count();
+    for(int i=0; i<c; i++) {
+        removeTab(0);
+    }
+}
