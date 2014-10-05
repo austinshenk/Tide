@@ -11,6 +11,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Tide
 TEMPLATE = app
+ICON = tide.ico
+RC_FILE = tide.rc
 
 
 SOURCES += main.cpp\
